@@ -48,6 +48,8 @@
   (if @debug-on?
     (apply println args)))
 
+;; FIX: The data is properly set on the first try, the problem is that
+;; the render order
 (defn om-local [data owner opts]
   (reify
     om/IWillMount
@@ -59,16 +61,18 @@
         (if (:debug opts) (reset! debug-on? true))
         (async/sub tx-chan :txs txs)
         (om/set-state! owner :txs txs)
-        (println (get-item local-storage local-index))
-        (om/update! data local-path
-                    (get-item local-storage local-index))
+        (if-let [init-data (::local local-storage)]
+          (do
+            (println local-path)
+            (println init-data)
+            (om/update! data local-path init-data)))
         (go-loop [] 
           (let [[{:keys [new-state tag]} _] (<! txs)]
             (print-log "Got tag:" tag)
             (when (= ::local tag)
               (let [state (get-in new-state local-path)]
                 (print-log "Got state:" state)
-                (set-item local-storage local-index state)))
+                (assoc! local-storage ::local (get-in state local-path))))
             (recur)))))
     om/IRender
     (render [_]
