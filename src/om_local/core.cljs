@@ -1,5 +1,5 @@
 (ns ^:figwheel-always om-local.core
-    (:require-macros [cljs.core.async.macros :refer [go-loop]])
+    (:require-macros [cljs.core.async.macros :refer [go-loop go]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
               [hodgepodge.core :refer [get-item set-item 
@@ -27,11 +27,16 @@
              #js {:onChange #(om/update! data :pass (.. % -target -value))
                   :type "password"
                   :value (:pass data)
-                  :placeholder "Password"}))))
+                  :placeholder "Password"})
+            (dom/button 
+             #js {:onClick (fn [_] 
+                             (om/update! data [] {:email "" :pass ""} ::local))}
+             "Clear!"))))
 
 (defn main-component [data owner]
   (om/component
    (om/build login (:auth data))))
+
 ;; API
 
 (defn- to-indexed
@@ -62,17 +67,17 @@
         (async/sub tx-chan :txs txs)
         (om/set-state! owner :txs txs)
         (if-let [init-data (::local local-storage)]
-          (do
-            (println local-path)
-            (println init-data)
-            (om/update! data local-path init-data)))
+          ;; FIX this HACK
+          ;; since we update! during will-mount, no re-renders are triggered
+          (go (let [_ (<! (async/timeout 100))]
+                (om/update! data local-path init-data))))
         (go-loop [] 
           (let [[{:keys [new-state tag]} _] (<! txs)]
             (print-log "Got tag:" tag)
             (when (= ::local tag)
               (let [state (get-in new-state local-path)]
                 (print-log "Got state:" state)
-                (assoc! local-storage ::local (get-in state local-path))))
+                (assoc! local-storage ::local state)))
             (recur)))))
     om/IRender
     (render [_]
@@ -88,7 +93,7 @@
          (om/build om-local data
                    {:opts {:view-component main-component 
                            :debug true
-                           :local-path :auth}}))))
+                           :local-path [:auth :email]}}))))
    app-state
    {:target (. js/document (getElementById "app"))
     :shared {:tx-chan tx-pub-chan}
