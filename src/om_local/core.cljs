@@ -2,7 +2,8 @@
     (:require-macros [cljs.core.async.macros :refer [go-loop]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
-              [hodgepodge.core :refer [set-item local-storage session-storage]]
+              [hodgepodge.core :refer [get-item set-item 
+                                       local-storage session-storage]]
               [om.dom :as dom :include-macros true]))
 
 (enable-console-print!)
@@ -52,18 +53,22 @@
     om/IWillMount
     (will-mount [_]
       (let [local-path (to-indexed (:local-path opts))
+            local-index (pr-str local-path)
             tx-chan (om/get-shared owner :tx-chan)
             txs (chan)]
         (if (:debug opts) (reset! debug-on? true))
         (async/sub tx-chan :txs txs)
         (om/set-state! owner :txs txs)
+        (println (get-item local-storage local-index))
+        (om/update! data local-path
+                    (get-item local-storage local-index))
         (go-loop [] 
           (let [[{:keys [new-state tag]} _] (<! txs)]
             (print-log "Got tag:" tag)
             (when (= ::local tag)
               (let [state (get-in new-state local-path)]
                 (print-log "Got state:" state)
-                (set-item local-storage local-path state)))
+                (set-item local-storage local-index state)))
             (recur)))))
     om/IRender
     (render [_]
