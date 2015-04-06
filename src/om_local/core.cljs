@@ -1,10 +1,10 @@
-(ns ^:figwheel-always om-local.core
-    (:require-macros [cljs.core.async.macros :refer [go-loop go]])
-    (:require [om.core :as om :include-macros true]
-              [cljs.core.async :as async :refer [put! chan]]
-              [hodgepodge.core :refer [get-item set-item 
-                                       local-storage session-storage]]
-              [om.dom :as dom :include-macros true]))
+(ns om-local.core
+  (:require-macros [cljs.core.async.macros :refer [go-loop go]])
+  (:require [om.core :as om :include-macros true]
+            [om.dom :as dom :include-macros true]
+            [cljs.core.async :as async :refer [put! chan]]
+            [hodgepodge.core :refer [get-item set-item 
+                                     local-storage session-storage]]))
 
 ;; API
 
