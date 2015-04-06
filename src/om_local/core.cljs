@@ -69,7 +69,7 @@
         (if-let [init-data (::local local-storage)]
           ;; FIX this HACK
           ;; since we update! during will-mount, no re-renders are triggered
-          (go (let [_ (<! (async/timeout 100))]
+          (go (let [_ (<! (async/timeout 20))]
                 (om/update! data local-path init-data))))
         (go-loop [] 
           (let [[{:keys [new-state tag]} _] (<! txs)]
