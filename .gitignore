@@ -1,11 +1,10 @@
-/resources/public/js/compiled/**
-figwheel_server.log
 pom.xml
 *jar
 /lib/
 /classes/
 /out/
 /target/
+/examples/*/out
 .lein-deps-sum
 .lein-repl-history
 .lein-plugins/
