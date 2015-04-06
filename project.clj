@@ -9,7 +9,6 @@
                  [figwheel "0.2.5-SNAPSHOT"]
                  [hodgepodge "0.1.3"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 [sablono "0.3.4"]
                  [org.omcljs/om "0.8.8"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
@@ -17,25 +16,19 @@
 
   :source-paths ["src"]
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled"]
+  :clean-targets ^{:protect false} ["examples/login/out"]
   
   :cljsbuild {
-              :builds [{:id "dev"
-                        :source-paths ["src" "dev_src"]
-                        :compiler {:output-to "resources/public/js/compiled/om_local.js"
-                                   :output-dir "resources/public/js/compiled/out"
+              :builds [{:id "login"
+                        :source-paths ["src" "examples/login/src"]
+                        :compiler {:output-to "examples/login/out/main.js"
+                                   :output-dir "examples/login/out"
                                    :optimizations :none
-                                   :main om-local.dev
-                                   :asset-path "js/compiled/out"
+                                   :main examples.login.core
+                                   :asset-path "out"
                                    :source-map true
                                    :source-map-timestamp true
-                                   :cache-analysis true }}
-                       {:id "min"
-                        :source-paths ["src"]
-                        :compiler {:output-to "resources/public/js/compiled/om_local.js"
-                                   :main om-local.core                         
-                                   :optimizations :advanced
-                                   :pretty-print false}}]}
+                                   :cache-analysis true}}]}
 
   :figwheel {
              :http-server-root "public" ;; default and assumes "resources" 
