@@ -1,6 +1,6 @@
 (defproject om-local "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "Sync a cursor in Om's state into localStorage or sessionStorage"
+  :url "https://github.com/bensu/om-local"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
@@ -10,14 +10,18 @@
                  [hodgepodge "0.1.3"]
                  [org.omcljs/om "0.8.8"]]
 
+  :scm {:name "git"
+        :url "https://github.com/bensu/om-local"}
+
+  :deploy-repositories [["clojars" {:creds :gpg}]]
+
   :plugins [[lein-cljsbuild "1.0.4"]]
 
   :source-paths ["src"]
 
   :clean-targets ^{:protect false} ["examples/login/out"]
   
-  :cljsbuild {
-              :builds [{:id "login"
+  :cljsbuild {:builds [{:id "login"
                         :source-paths ["src" "examples/login/src"]
                         :compiler {:output-to "examples/login/out/main.js"
                                    :output-dir "examples/login/out"
