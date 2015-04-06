@@ -14,7 +14,7 @@
    (dom/div nil
             (dom/input 
              #js {:onChange #(om/update! data :email (.. % -target -value) 
-                                         :om-.core/local)
+                                         :om-local.core/local)
                   :type "email"
                   :value (:email data)
                   :placeholder "Email"})
