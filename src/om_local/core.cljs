@@ -6,7 +6,8 @@
             [hodgepodge.core :refer [get-item set-item 
                                      local-storage session-storage]]))
 
-;; API
+;; ======================================================================  
+;; Helpers 
 
 (defn- to-indexed
   "Makes sure the cursor-path is a []"
@@ -22,8 +23,9 @@
   (if @debug-on?
     (apply println args)))
 
-;; FIX: The data is properly set on the first try, the problem is that
-;; the render order
+;; ======================================================================  
+;; API
+
 (defn om-local [data owner opts]
   (reify
     om/IWillMount
@@ -32,14 +34,12 @@
             local-index (pr-str local-path)
             tx-chan (om/get-shared owner :tx-chan)
             txs (chan)]
-        (if (:debug opts) (reset! debug-on? true))
+        (when (:debug opts)
+          (reset! debug-on? true))
         (async/sub tx-chan :txs txs)
         (om/set-state! owner :txs txs)
-        (if-let [init-data (::local local-storage)]
-          ;; FIX this HACK
-          ;; since we update! during will-mount, no re-renders are triggered
-          (go (let [_ (<! (async/timeout 20))]
-                (om/update! data local-path init-data))))
+        (when-let [init-data (::local local-storage)]
+          (om/update! data local-path init-data))
         (go-loop [] 
           (let [[{:keys [new-state tag]} _] (<! txs)]
             (print-log "Got tag:" tag)
